@@ -1,0 +1,20 @@
+# create a Pod with name admin-pod and image busybox. Allow the Pod to be able to set system_time. The container should sleep for 3200 seconds
+#kubectl run admin-pod --image=busybox --command sleep 32000 --dry-run=client -o yaml >> quest1.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: admin-pod
+  name: admin-pod
+spec:
+  containers:
+  - command:
+    - sleep
+    - "3200"
+    image: busybox
+    name: admin-pod
+    securityContext:
+      capabilities:
+        add: ["SYS_TIME"]
