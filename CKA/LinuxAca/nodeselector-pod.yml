@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodeselector-pod
+  namespace: cka
+spec:
+  nodeSelector:
+    special: "true"
+  containers:
+    - name: nginx
+      image: nginx:1.19.1
