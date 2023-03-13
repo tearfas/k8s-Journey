@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bright-pod1
+  namespace: ns-one
+  labels:
+    use: feb23-k8s
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.2
+      ports:
+        - containerPort: 80
+  restartPolicy: OnFailure

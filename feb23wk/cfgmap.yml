@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cfgmap1
+  namespace: ns-one
+data:
+  key1: Hello World!
+  key2: |
+    Test
+    Multiple Lines
+    More Lines
