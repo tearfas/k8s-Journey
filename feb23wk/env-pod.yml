@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-pod
+  namespace: ns-one
+spec:
+  containers:
+    - name: brightbusybox
+      image: busybox
+      command: ['sh', '-c', 'echo "configmap: $brightcfg secret: $brightseq"']
+      env:
+        - name: brightcfg
+          valueFrom:
+            configMapKeyRef:
+              name: cfgmap1 
+              key: key1
+        
+        - name: brightseq
+          valueFrom:
+            secretKeyRef: 
+              name: sekret1
+              key: secretkey2
