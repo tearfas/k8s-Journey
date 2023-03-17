@@ -1,0 +1,17 @@
+#kubectl run bright-clio-pd --image=nginx -n cka-u --dry-run=client -o yaml > podcli2.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: bright-clio-pd
+  name: bright-clio-pd
+  namespace: cka-u
+spec:
+  containers:
+  - image: nginx
+    name: bright-clio-pd
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
