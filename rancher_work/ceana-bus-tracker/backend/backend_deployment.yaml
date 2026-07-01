@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceana-backend
+  namespace: ceana-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ceana-backend
+  template:
+    metadata:
+      labels:
+        app: ceana-backend
+    spec:
+      containers:
+        - name: backend
+          image: your-registry/ceana-backend:v1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REDIS_HOST
+              value: redis
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceana-backend
+  namespace: ceana-demo
+spec:
+  selector:
+    app: ceana-backend
+  ports:
+    - port: 3000
+      targetPort: 3000

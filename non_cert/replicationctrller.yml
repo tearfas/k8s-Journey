@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: rctrller
+  namespace: non-certs
+spec:
+  replicas: 3
+  selector: rctr 
