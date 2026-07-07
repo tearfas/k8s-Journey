@@ -1,0 +1,36 @@
+SetUp Nfs for k8s
+
+On NFS server
+--------------
+sudo apt update
+sudo apt install -y nfs-kernel-server
+sudo mkdir -p /srv/nfs/kubedata
+sudo chown nobody:nogroup /srv/nfs/kubedata
+sudo chmod 777 /srv/nfs/kubedata
+# Append to /etc/exports (replace 10.0.0.0/24 with your subnet)
+echo "/srv/nfs/kubedata 10.0.0.0/24(rw,sync,no_subtree_check,no_root_squash)" | sudo tee -a /etc/exports
+sudo exportfs -ra
+sudo systemctl restart nfs-kernel-server
+
+On all Cluster Nodes
+--------------------
+sudo apt update && sudo apt install -y nfs-common
+
+On k8s cluster 
+---------------
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm repo update
+
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=192.168.1.176 --set nfs.path=/srv/nfs/k8sdata  --set storageClass.name=nfs-storage  --set storageClass.defaultClass=true
+
+kubectl get sc
+
+
+### Sonatype nexus
+
+
+kubectl exec -it deployment/nexus -- cat /nexus-data/admin.password
+
+Delete Pods gracefully
+----------------------
+kubectl delete pod rancher-85db98bbdc-24vzq rancher-85db98bbdc-fxs8v rancher-85db98bbdc-p9n4g rancher-85db98bbdc-x5mc5 -n cattle-system --force --grace-period=0
