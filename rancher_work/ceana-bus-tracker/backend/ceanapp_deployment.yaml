@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceana-backend
+  namespace: ceana-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceana-backend
+  template:
+    metadata:
+      labels:
+        app: ceana-backend
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "ceana-role"
+        vault.hashicorp.com/agent-inject-secret-app: "secret/data/ceana/app"
+        vault.hashicorp.com/agent-inject-template-app: |
+          {{- with secret "secret/data/ceana/app" -}}
+          export KEYCLOAK_URL="{{ .Data.data.keycloak_url }}"
+          export KEYCLOAK_REALM="{{ .Data.data.keycloak_realm }}"
+          export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+          export REDIS_HOST="{{ .Data.data.redis_host }}"
+          export GOOGLE_MAPS_KEY="{{ .Data.data.google_maps_key }}"
+          {{- end }}
+    spec:
+      serviceAccountName: ceana-sa
+      imagePullSecrets:
+        - name: nexus-pull-secret
+      containers:
+        - name: backend
+          image: 192.168.1.151:30081/ceana-backend:v1
+          command: ["/bin/sh", "-c"]
+          args:
+            - source /vault/secrets/app && node server.js 2>&1 | tee -a /logs/backend.log
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REDIS_HOST
+              value: "redis.ceana-demo.svc.cluster.local"
+            - name: KEYCLOAK_URL
+              value: "http://keycloak.devops-tools.svc.cluster.local:8080"
+            - name: KEYCLOAK_REALM
+              value: "ceana2026"
+          volumeMounts:
+            - name: backend-logs
+              mountPath: /logs
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: backend-logs
+          persistentVolumeClaim:
+            claimName: backend-logs-pvc

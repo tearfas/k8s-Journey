@@ -1,0 +1,27 @@
+# ── Redis PVC — live bus position data ──────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+  namespace: ceana-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-storage
+  resources:
+    requests:
+      storage: 1Gi
+---
+# ── Backend logs PVC — audit trail for post-event review ────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-logs-pvc
+  namespace: ceana-demo
+spec:
+  accessModes:
+    - ReadWriteMany       # ReadWriteMany so multiple backend replicas can write
+  storageClassName: nfs-storage
+  resources:
+    requests:
+      storage: 2Gi
